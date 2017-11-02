@@ -1,0 +1,15 @@
+Secret Santa draw !
+-------------------
+Hello $santa_name !
+
+For our annual Secret Santa, you’re Santa to <strong>$giftee_name</strong>.
+
+If you need help, you can contact $giftees_so_name (their email is $giftees_so_email)
+
+For more information, contact me : $reply_email
+Don't bother answering this email, it won't be read.
+
+Cheers !
+
+--
+$reply_name

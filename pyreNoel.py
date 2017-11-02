@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from datetime import datetime
+from string import Template
 
 import yagmail
 import json
@@ -14,7 +15,34 @@ from random import shuffle
 
 __version__ = 0.1
 
+def build_email_template(santa, giftee, giftees_so):
+  # get the file name from command line arguments
+  email_template_file_name = 'template.' + args.language[0] + '.txt'
 
+  # if file exists
+  if os.path.isfile(email_template_file_name):
+    # open it
+    email_template_file = open(email_template_file_name)
+    # read it
+    email_template = Template(email_template_file.read())
+    # get email variables from function arguments
+    email_data = {
+      'santa_name': santa['name'],
+      'giftee_name': giftee['name'],
+      'giftees_so_name': giftees_so['name'],
+      'giftees_so_email': giftees_so['email'],
+      'reply_email': settings['reply_email'],
+      'reply_name': settings['reply_name']
+    }
+
+    # substitute the template
+    result = email_template.substitute(email_data)
+
+    return result
+
+  else:
+    print("Language not found. Aborting everything.")
+    quit()
 
 
 def get_config_data(config_data_file = 'data.json'):
@@ -158,45 +186,27 @@ def send_emails(test = False):
       giftee = family_data[person][1 - w]
       # …and the giftees significant other
       giftees_so = family_data[person][w]
-      
+
       # let's build the email !
-      # It's in French, I know, I'm French !
       email_to =  '{} <{}>'.format(santa['name'],santa['email'])
-      email_subject = 'Tirage au sort des cadeaux de noël !'
-      email_body  = "Coucou {} !\n".format(santa['name'])
-      email_body += "\n"
-      email_body += "Pour le Noël des Robert, tu dois offrir un cadeau à "
-      email_body += "<strong>{}</strong>.".format(giftee['name'])
-      email_body += "\n"
-      email_body += "\n"
 
-      # in case one couple shares a common email address.
-      if person != 1:
-        email_body += "Si tu as besoin d'aide, "
-        email_body += "tu peux contacter {} ".format(giftees_so['name'])
-        email_body += "(son email c'est {})\n".format(giftees_so['email'])
-      else:
-        email_body += "Attention, Mathilde et Alexis partagent "
-        email_body += "un compte email :)\n"
+      # get the email template in the language specified in command line args
+      email_template = build_email_template(santa, giftee, giftees_so)
 
-      email_body += "\n"
-      email_body += "Pour plus d'infos, contacte-moi : "
-      email_body += "{}\n".format(settings['reply_email'])
-      email_body += "Ne réponds pas à cet email, ça ne sera pas lu.\n"
-      email_body += "\n"
-      email_body += "Bises !\n"
-      email_body += "\n"
-      email_body += "- Joachim\n"
+      if email_template:
+        # get the subject (it's the first line)
+        email_subject = email_template.splitlines()[0]
+        # get the body (it's all the lines after the two first lines)
+        email_body = email_template.split("\n",2)[2]
 
-      if test:
-        # Send the email without "to" !
-        yag.send(subject = email_subject, contents = email_body)
-      else:
-        # Send the email with "to" !
-        #yag.send(to = email_to, subject = email_subject, contents = email_body)
-        print "ho là, on teste hein!"
-
-      print "The email to {} has been sent!".format(santa['name'])
+        if test:
+          # Send the email without "to" !
+          yag.send(subject = email_subject, contents = email_body)
+          print("The TEST email to {} has been sent to you!".format(santa['name']))
+        else:
+          # Send the email with "to" !
+          yag.send(to = email_to, subject = email_subject, contents = email_body)
+          print("The email to {} has been sent!".format(santa['name']))
 
   return "All mail sent!"
 

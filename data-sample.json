@@ -1,6 +1,7 @@
 {
   "settings": {
     "gmail_account": "mygmailusername",
+    "reply_name": "My name",
     "reply_email": "mygmailusername@gmail.com"
   },
   "family": [
