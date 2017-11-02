@@ -183,6 +183,12 @@ def write_draw():
         else:
             return "File not overwritten, here's the raw output: {}"\
                 .format(draw_json)
+    else:
+        file_open = open(file_name, 'w')
+        file_open.write(str(draw_json))
+        file_open.close()
+        return "File Saved"
+
 
 
 def send_emails(test = False):
