@@ -91,15 +91,6 @@ def get_previous_years(years_list):
     return previous_years
 
 
-def check_against_previous_years(draw_shuf, x, i):
-    # loop for every previous year's list
-    for j in range(len(previous_years)):
-        # if the value is the same as in a previous list…
-        if previous_years[j][i][x] == draw_shuf[i]:
-            # … go back to the start of the loop
-            return False
-
-
 def do_draw(draw_group_size, previous_years):
     draw = []
 
