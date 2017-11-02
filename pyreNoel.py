@@ -14,25 +14,8 @@ from random import shuffle
 
 __version__ = 0.1
 
-# When there's lots of constraints the draw can be very long.
-# We don't want to hog an old machine, do we?
-loop_limit = 250
 
-# Args parser
-parser = argparse.ArgumentParser(
-  description='A Secret Santa drawer for the whole family, but only if no one is single.\nUsed without arguments, it only writes an output file.')
-parser.add_argument('-d', '--dry-run', action="store_true",
-                    help='Will draw, but won’t send emails and won’t write the output file.')
-parser.add_argument('-s', '--send-emails', action="store_true",
-                    help='Will draw, send emails and write the output file.')
-parser.add_argument('-t', '--test-emails', action="store_true",
-                    help='Will draw, send test emails (to yourself) and write the output file.')
-parser.add_argument('-p', '--previous-years', nargs='+', action='store', dest='year',
-                    default=[], help='The draw will avoid duplicating results from previous years.')
-parser.add_argument('-c', '--config-file', nargs=1, action='store', dest='config_file',
-                    default=['data.json'], help='Will use the specified config file. Defaults to data.json.')
 
-args = parser.parse_args()
 
 def get_config_data(config_data_file = 'data.json'):
   if os.path.isfile(config_data_file):
@@ -219,6 +202,31 @@ def send_emails(test = False):
 
 
 if __name__ == '__main__':
+
+  reload(sys)  
+  sys.setdefaultencoding('utf8')
+
+  # When there's lots of constraints the draw can be very long.
+  # We don't want to hog an old machine, do we?
+  loop_limit = 250
+
+  # Args parser
+  parser = argparse.ArgumentParser(
+    description='A Secret Santa drawer for the whole family, but only if no one is single.\nUsed without arguments, it only writes an output file.')
+  parser.add_argument('-d', '--dry-run', action="store_true",
+                      help='Will draw, but won’t send emails and won’t write the output file.')
+  parser.add_argument('-s', '--send-emails', action="store_true",
+                      help='Will draw, send emails and write the output file.')
+  parser.add_argument('-t', '--test-emails', action="store_true",
+                      help='Will draw, send test emails (to yourself) and write the output file.')
+  parser.add_argument('-p', '--previous-years', nargs='+', action='store', dest='year',
+                      default=[], help='The draw will avoid duplicating results from previous years.')
+  parser.add_argument('-c', '--config-file', nargs=1, action='store', dest='config_file',
+                      default=['data.json'], help='Will use the specified config file. Defaults to data.json.')
+  parser.add_argument('-l', '--lang', nargs=1, action='store', dest='language',
+                      default='en', help='Loads an email template in the specified language. The file template must be present in the same dir as the script.')
+
+  args = parser.parse_args()
 
   # get all the configuration data
   config_data = get_config_data(args.config_file[0])
