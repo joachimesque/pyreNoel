@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from __future__ import print_function
 
 from datetime import datetime
 from string import Template
@@ -13,7 +14,6 @@ import os.path
 
 from random import shuffle
 
-__version__ = 0.1
 
 def build_email_template(santa, giftee, giftees_so):
   # get the file name from command line arguments
@@ -75,11 +75,11 @@ def get_previous_years(years_list):
       if len(file_json_data) == len(family_data):
         file_json_data = [tuple(i) for i in file_json_data]
         previous_years.append(file_json_data)
-        print "Family data added for {}".format(year)
+        print("Family data added for {}".format(year))
       else:
-        print "Family data skipped for {} due to change in family size.".format(year)
+        print("Family data skipped for {} due to change in family size.".format(year))
     else:
-      print "Family data skipped for {} due to file not found.".format(year)
+      print("Family data skipped for {} due to file not found.".format(year))
 
 
   return previous_years
@@ -96,6 +96,8 @@ def check_against_previous_years(draw_shuf, x, i):
 def do_draw(draw_group_size, previous_years):
   draw = []
 
+  print('Drawing the Secret Santa', end='')
+
   for x in range(0,2):
     # create the set
     draw_shuf = range(draw_group_size)
@@ -107,7 +109,7 @@ def do_draw(draw_group_size, previous_years):
 
       # well, don't loop too much tho
       if loop_checker > loop_limit:
-        print "Error: Too many tries"
+        print("Error: Too many tries")
         quit()
       else:
         loop_checker += 1
@@ -117,9 +119,8 @@ def do_draw(draw_group_size, previous_years):
 
       # shuffle the set
       shuffle(draw_shuf)
+      print('.', end='')
       
-
-
       # if the value is the same as its place in the list…
       # (so no one gets their SO as secret santa)
       duplicate_test = [i for i, j in zip(range(len(draw_shuf)),draw_shuf) if i == j]
@@ -147,6 +148,8 @@ def do_draw(draw_group_size, previous_years):
 
   # make tuples out of two lists
   draw = zip(draw[0], draw[1])
+  # one final dot
+  print('.')
   return draw
   
 def write_draw():
@@ -160,7 +163,7 @@ def write_draw():
 
   # so yeah if the file already exists we ask confirmation for overwriting it.
   if os.path.isfile(file_name):
-    print "Looks like the file {} already exists.".format(file_name)
+    print("Looks like the file {} already exists.".format(file_name))
     if raw_input('Overwrite? (y/N) ') == "y":
       file_open = open(file_name, 'w')
       file_open.write(str(draw_json))
@@ -172,7 +175,7 @@ def write_draw():
 
 def send_emails(test = False):
   # so in this one we're sending emails
-  
+  print("Sending emails…")
   yag = yagmail.SMTP(settings['gmail_account']) 
   
   # let's loop all the couples…
@@ -244,7 +247,7 @@ if __name__ == '__main__':
     family_data = config_data['family']
     settings = config_data['settings']
   else:
-    print "Data file not found. Check the filename."
+    print("Data file not found. Check the filename.")
     quit()
 
   # --no-dupes 2016 2015 2014
@@ -258,21 +261,21 @@ if __name__ == '__main__':
   if not args.dry_run:
     # if it's been told to --send-emails
     if args.send_emails:
-      print send_emails()
+      print(send_emails())
 
     # if it's been told to --test-emails
     if args.test_emails:
-      print send_emails(test = True)
+      print(send_emails(test = True))
 
-    print write_draw()
+    print(write_draw())
   # if it IS a --dry-run
   else:
     if args.send_emails or args.test_emails:
-      print "-----------------"
-      print "It's a dry run, the emails were not sent."
+      print("-----------------")
+      print("It's a dry run, the emails were not sent.")
 
-    print "-----------------"
-    print "Final draw:"
-    print draw
-    print "No email set, no file written."
-    print "If you're satisfied with the program, run it with --send-emails"
+    print("-----------------")
+    print("Final draw:")
+    print(draw)
+    print("No email set, no file written.")
+    print("If you're satisfied with the program, run it with --send-emails")
