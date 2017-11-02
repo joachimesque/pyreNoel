@@ -5,7 +5,6 @@ Coucou $santa_name !
 Pour le Noël des Robert, tu dois offrir un cadeau à <strong>$giftee_name</strong>.
 
 Si tu as besoin d'aide, tu peux contacter $giftees_so_name (son email c'est $giftees_so_email)
-Attention, Mathilde et Alexis partagent leur compte email :)
 
 Pour plus d'infos, contacte-moi : $reply_email
 Ne réponds pas à cet email, ça ne sera pas lu.
