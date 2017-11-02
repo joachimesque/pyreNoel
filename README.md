@@ -59,6 +59,9 @@ The draw will avoid duplicating results from previous years.
 **-c**, **--config-file** :    
 Specify another config file. Defaults to `data.json`.
 
+**-l**, **--lang** :    
+Specify a language. Defaults to `en`.
+
 ## What next?
 
 The email text is in French. You gotta change it before using it. I'll have to check out simple templating systems available in Python so I can have various templates for different languages.
