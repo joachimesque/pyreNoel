@@ -36,7 +36,7 @@ It's a standard JSON file, with a `settings` object and a `family` object.
 
 You can see a sample `data-sample.json`.
 
-You will have to edit the script to modify the email content. Right now it's in French to fit my needs, but if you need it with another signature and a different language, you will have to change it.
+You can edit the file `template.en.txt` to modify the contents of the email.
 
 Once you set up your settings, all the couples info and the email contents, you can run the script (don't forget to `chmod +x` the file).
 
@@ -63,7 +63,5 @@ Specify another config file. Defaults to `data.json`.
 Specify a language. Defaults to `en`.
 
 ## What next?
-
-The email text is in French. You gotta change it before using it. I'll have to check out simple templating systems available in Python so I can have various templates for different languages.
 
 Why not make an online service for this script? I would need to make a GUI for editing the participants, translate Python to JS, see about the email strategy. Lotsa work and there's so little time.
