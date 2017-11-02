@@ -48,7 +48,7 @@ def build_email_template(santa, giftee, giftees_so):
         quit()
 
 
-def get_config_data(config_data_file = 'data.json'):
+def get_config_data(config_data_file='data.json'):
     if os.path.isfile(config_data_file):
         file_data = open(config_data_file, 'r')
         file_json_data = json.load(file_data)
@@ -191,7 +191,7 @@ def write_draw():
 
 
 
-def send_emails(test = False):
+def send_emails(test=False):
     # so in this one we're sending emails
     print("Sending emails…")
     yag = yagmail.SMTP(settings['gmail_account']) 
@@ -299,7 +299,7 @@ if __name__ == '__main__':
 
         # if it's been told to --test-emails
         if args.test_emails:
-            print(send_emails(test = True))
+            print(send_emails(test=True))
 
         print(write_draw())
 
