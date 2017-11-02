@@ -1,6 +1,6 @@
 # pyreNoel.py
 
-## A secret-santa for groups where no one is single.
+## A Secret Santa draw generator for groups and families where no one is single.
 
 Let's say your group of friends or your family is comprised of couples. You want to organize a Secret Santa for every person and their significant other.
 
@@ -47,16 +47,16 @@ If you run the script without an argument, it will only write an output file.
 **-d**, **--dry-run**    
 The script will make the draw, but won’t send emails and won’t write the output file.
 
-*-s*, *--send-emails*    
+**-s**, **--send-emails**    
 The script will draw, send emails and write the output file.
 
-*-t*, *--test-emails* : test mode    
+**-t**, **--test-emails** : test mode    
 The script will draw, send test emails and write the output file. The emails will be sent to yourself.
 
-*-p*, *--previous-years* : limit previous years    
+**-p**, **--previous-years** : limit previous years    
 The draw will avoid duplicating results from previous years.
 
-*-c*, *--config-file* :    
+**-c**, **--config-file** :    
 Specify another config file. Defaults to `data.json`.
 
 ## What next?
