@@ -199,8 +199,8 @@ def send_emails(test=False):
             # …and the giftees significant other
             giftees_so = family_data[person][w]
 
-            # let's build the email !
-            email_to =  '{} <{}>'.format(santa['name'],santa['email'])
+            # get the email address
+            email_to =  santa['email']
 
             # get email template in the language specified in command line args
             email_template = build_email_template(santa, giftee, giftees_so)
