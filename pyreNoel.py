@@ -1,7 +1,4 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-from __future__ import print_function
+#! /usr/bin/env python3
 
 __version__ = '0.1'
 __author__ = 'Joachim Robert, @joachimesque'
@@ -11,7 +8,6 @@ from string import Template
 
 import yagmail
 import json
-import sys
 import argparse
 import os.path
 
@@ -98,7 +94,7 @@ def do_draw(draw_group_size, previous_years):
 
     for x in range(0,2):
         # create the set
-        draw_shuf = range(draw_group_size)
+        draw_shuf = list(range(draw_group_size))
 
         loop_checker = 0
             
@@ -151,7 +147,7 @@ def do_draw(draw_group_size, previous_years):
     draw = zip(draw[0], draw[1])
     # one final dot
     print('.')
-    return draw
+    return list(draw)
 
 
 def write_draw():
@@ -166,7 +162,7 @@ def write_draw():
     # so yeah if the file already exists we ask confirmation for overwriting it
     if os.path.isfile(file_name):
         print("Looks like the file {} already exists.".format(file_name))
-        if raw_input('Overwrite? (y/N) ') == "y":
+        if input('Overwrite? (y/N) ') == "y":
             file_open = open(file_name, 'w')
             file_open.write(str(draw_json))
             file_open.close()
@@ -231,9 +227,6 @@ def send_emails(test=False):
 
 
 if __name__ == '__main__':
-
-    reload(sys)  
-    sys.setdefaultencoding('utf8')
 
     # When there's lots of constraints the draw can be very long.
     # We don't want to hog an old machine, do we?
