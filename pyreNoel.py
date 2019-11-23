@@ -13,7 +13,6 @@ import os.path
 
 from random import shuffle
 
-
 def build_email_template(santa, giftee, giftees_so):
     # get the file name from command line arguments
     email_template_file_name = 'template.' + args.language[0] + '.txt'
@@ -88,60 +87,62 @@ def get_previous_years(years_list):
 
 
 def do_draw(draw_group_size, previous_years):
-    draw = []
 
     print('Drawing the Secret Santa', end='')
 
-    for x in range(0,2):
-        # create the set
-        draw_shuf = list(range(draw_group_size))
+    should_loop = True
 
-        loop_checker = 0
-            
-        # loop until I say not to
-        while True:
+    # loop until I say not to
+    for loop in range(loop_limit):
+        draw = []
 
-            # well, don't loop too much tho
-            if loop_checker > loop_limit:
-                print("Error: Too many tries")
-                quit()
-            else:
-                loop_checker += 1
-            # the big question is, should I have made a
-            # for loop in len(range(loop_checker))
-            # instead of a while True ?
+        draw_shuf = list(range(draw_group_size * 2))
 
-            # shuffle the set
-            shuffle(draw_shuf)
-            print('.', end='')
-            
+        # shuffle the set
+        shuffle(draw_shuf)
+        print('.', end='')
+
+        duplicate_test = []
+
+        # And let’s not have strict reciprocity santa <-> giftee
+        duplicate_test += [i for i in range(draw_group_size * 2)\
+            if draw_shuf[i] == i]
+        duplicate_test += [i for i, j in enumerate(draw_shuf)\
+            if draw_shuf[j] == i and draw_shuf.index(i) == j]
+
+        for x in range(2):
+            # get the values
+            partial_draw = [draw_shuf[i * 2 + x] \
+                    for i in range(draw_group_size)]
+
             # if the value is the same as its place in the list…
             # (so no one gets their SO as secret santa)
-            duplicate_test = [i for i, \
-                    j in zip(range(len(draw_shuf)),draw_shuf) if i == j]
-            # … go back to the start of the loop
-            if duplicate_test: pass
+            duplicate_test += [i for i, \
+                j in zip(range(draw_group_size), \
+                [int(i / 2) for i in  partial_draw]) if i == j]
 
             # if the value is the same as in the previous years…
             for year in range(len(previous_years)):
                 duplicate_test += [i[x] for i, \
-                        j in zip(previous_years[year],draw_shuf) if i[x] == j]
-            # … go back to the start of the loop
-            if duplicate_test: pass
+                    j in zip(previous_years[year], partial_draw) if i[x] == j]
 
             # We don't want both in a couple to gift to the same couple, do we?
-            if x > 0:
+            if len(draw) > 0:
                 duplicate_test += [i for i, \
-                        j in zip(draw[0],draw_shuf) if i == j]
-            # … No. Go back to the start of the loop
-            if duplicate_test: pass
+                        j in zip(draw[0], partial_draw) if i == j]
 
             # if all the values are good and unique
             if not duplicate_test:
                 # insert the current shuffle in the output list as a list
-                draw.insert(x,draw_shuf)
+                draw.append(partial_draw)
                 # now I say don't loop no more
-                break
+
+        if len(draw) == 2 : break
+
+    # well, we’ve looped too much
+    if len(draw) != 2:
+        print("Error: Too many tries")
+        quit()
 
     # make tuples out of two lists
     draw = zip(draw[0], draw[1])
@@ -183,6 +184,7 @@ def send_emails(test=False):
     print("Sending emails…")
     yag = yagmail.SMTP(settings['gmail_account']) 
     
+    print(draw)
     # let's loop all the couples…
     for v, couple in enumerate(draw):
         # …and then loop all the people…
@@ -191,9 +193,9 @@ def send_emails(test=False):
             santa = family_data[v][w]
             # …and those of their giftees…
             # 1 - w will change 0 to 1 and 1 to 0
-            giftee = family_data[person][1 - w]
+            giftee = family_data[int(person / 2)][person % 2]
             # …and the giftees significant other
-            giftees_so = family_data[person][w]
+            giftees_so = family_data[int(person / 2)][1 - person % 2]
 
             # get the email address
             email_to =  santa['email']
