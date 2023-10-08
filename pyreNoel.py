@@ -89,7 +89,7 @@ def get_previous_years(years_list):
     return previous_years
 
 
-def do_draw(draw_group_size, previous_years):
+def do_draw(draw_group_size, previous_years, avoids):
 
     print("Drawing the Secret Santa", end="")
 
@@ -97,18 +97,16 @@ def do_draw(draw_group_size, previous_years):
 
     # loop until I say not to
     for loop in range(loop_limit):
-        draw = []
+        draw_shuf = list(range(draw_group_size))
 
-        draw_shuf = list(range(draw_group_size * 2))
-
-        # shuffle the set
+        # # shuffle the set
         shuffle(draw_shuf)
         print(".", end="")
 
         duplicate_test = []
 
         # no self gift
-        duplicate_test += [i for i in range(draw_group_size * 2) if draw_shuf[i] == i]
+        duplicate_test += [i for i in range(draw_group_size) if draw_shuf[i] == i]
         # let’s not have strict reciprocity santa <-> giftee
         duplicate_test += [
             i
@@ -116,51 +114,14 @@ def do_draw(draw_group_size, previous_years):
             if draw_shuf[j] == i and draw_shuf.index(i) == j
         ]
 
-        for x in range(2):
-            # get the values
-            partial_draw = [draw_shuf[i * 2 + x] for i in range(draw_group_size)]
+        # no one gets their SO as secret santa
+        duplicate_test += [i for i, j in enumerate(draw_shuf) if j in avoids[i]]
 
-            # if the value is the same as its place in the list…
-            # (so no one gets their SO as secret santa)
-            duplicate_test += [
-                i
-                for i, j in zip(
-                    range(draw_group_size), [int(i / 2) for i in partial_draw]
-                )
-                if i == j
-            ]
-
-            # or if the value is the same as in the previous years…
-            for year in range(len(previous_years)):
-                duplicate_test += [
-                    i[x]
-                    for i, j in zip(previous_years[year], partial_draw)
-                    if i[x] == j
-                ]
-
-            # if it's in the same couple
-            if len(draw) > 0:
-                duplicate_test += [i for i, j in zip(draw[0], partial_draw) if i == j]
-
-            # if all the values are good and unique
-            if not duplicate_test:
-                # insert the current shuffle in the output list as a list
-                draw.append(partial_draw)
-
-        # now I say don't loop no more
-        if len(draw) == 2:
-            break
-
-    # well, we’ve looped too much
-    if len(draw) != 2:
-        print("Error: Too many tries")
-        quit()
-
-    # make tuples out of two lists
-    draw = zip(draw[0], draw[1])
-    # one final dot
-    print(".")
-    return list(draw)
+        # If no duplicates and stuff like that
+        if len(duplicate_test) == 0:
+            # one final dot
+            print(".")
+            return list(draw_shuf)
 
 
 def write_draw():
@@ -233,6 +194,11 @@ def send_emails(test=False):
                     print("The email to {} has been sent!".format(santa["name"]))
 
     return "All mail sent!"
+
+
+def better_print(draw, family_data):
+    for person in list(range(len(family_data))):
+        print(f"{family_data[person]['name']} -> {family_data[draw[person]]['name']}")
 
 
 if __name__ == "__main__":
@@ -309,12 +275,14 @@ if __name__ == "__main__":
         print("Data file not found. Check the filename.")
         quit()
 
+    avoids = [i["avoid"] for i in family_data]
+
     # --no-dupes 2016 2015 2014
     years_list = args.year
     previous_years = get_previous_years(years_list)
 
     # the main thingy
-    draw = do_draw(len(family_data), previous_years)
+    draw = do_draw(len(family_data), previous_years, avoids)
 
     # if it's not a --dry-run
     if not args.dry_run:
@@ -337,5 +305,6 @@ if __name__ == "__main__":
         print("-----------------")
         print("Final draw:")
         print(draw)
+        better_print(draw, family_data)
         print("No email set, no file written.")
         print("If you're satisfied, run the command with --send-emails")
