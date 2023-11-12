@@ -14,9 +14,20 @@ import os.path
 from random import shuffle
 
 
-def build_email_template(santa, giftee, giftees_so):
+# When there's lots of constraints the draw can be very long.
+# We don't want to hog an old machine, do we?
+LOOP_LIMIT = 250
+
+
+def build_email_template(santa, giftee):
     # get the file name from command line arguments
-    email_template_file_name = "template." + args.language[0] + ".txt"
+    email_template_file_name = f"template.{args.language[0]}.txt"
+
+    if giftee["so_name"] == "" and giftee["so_email"] == "":
+        no_so_file_name = f"template.{args.language[0]}.no-so.txt"
+        
+        if os.path.isfile(no_so_file_name):
+            email_template_file_name = no_so_file_name
 
     # if file exists
     if os.path.isfile(email_template_file_name):
@@ -28,8 +39,8 @@ def build_email_template(santa, giftee, giftees_so):
         email_data = {
             "santa_name": santa["name"],
             "giftee_name": giftee["name"],
-            "giftees_so_name": giftees_so["name"],
-            "giftees_so_email": giftees_so["email"],
+            "giftees_so_name": giftee["so_name"],
+            "giftees_so_email": giftee["so_email"],
             "reply_email": settings["reply_email"],
             "reply_name": settings["reply_name"],
         }
@@ -54,159 +65,142 @@ def get_config_data(config_data_file="data.json"):
 
 
 def get_previous_years(years_list):
-    # should return a list of lists containing tuples.
+    # should return a list of lists.
 
     # we intialize the list
     previous_years = []
 
-    # a loop for every year provided, in which we :
-    # - create the file name
-    # - check if filename exists
-    # - open the file
-    # - load the file contents as json
-    # if the list is the same size as the family data :
-    # - transform the list of lists as a list of tuples
-    # - append the list of tuples to the list of lists of tuples
     for year in years_list:
         file_name = "draw." + year + ".json"
         if os.path.isfile(file_name):
             file_data = open(file_name, "r")
             file_json_data = json.load(file_data)
-            if len(file_json_data) == len(family_data):
-                file_json_data = [tuple(i) for i in file_json_data]
-                previous_years.append(file_json_data)
-                print("Family data added for {}".format(year))
-            else:
-                print(
-                    "Family data skipped for {} due to change \
-                    in family size.".format(
-                        year
-                    )
-                )
+            previous_years.append(file_json_data)
+            print("Family data added for {}".format(year))
+
         else:
             print("Family data skipped for {} due to file not found.".format(year))
 
     return previous_years
 
 
-def do_draw(draw_group_size, previous_years, avoids):
+def get_draw(family_data):
 
     print("Drawing the Secret Santa", end="")
 
     should_loop = True
 
     # loop until I say not to
-    for loop in range(loop_limit):
-        draw_shuf = list(range(draw_group_size))
+    for loop in range(LOOP_LIMIT):
+        shuffled = [i for i in family_data]
+        # shuffle the array
+        shuffle(shuffled)
 
-        # # shuffle the set
-        shuffle(draw_shuf)
+        for i, j in enumerate(shuffled):
+            family_data[i]["should_gift"] = j["id"]
+
         print(".", end="")
 
         duplicate_test = []
 
-        # no self gift
-        duplicate_test += [i for i in range(draw_group_size) if draw_shuf[i] == i]
-        # let’s not have strict reciprocity santa <-> giftee
-        duplicate_test += [
-            i
-            for i, j in enumerate(draw_shuf)
-            if draw_shuf[j] == i and draw_shuf.index(i) == j
-        ]
+        for person in family_data:
 
-        # no one gets their SO as secret santa
-        duplicate_test += [i for i, j in enumerate(draw_shuf) if j in avoids[i]]
+            # no self gift
+            if person["id"] == person["should_gift"]:
+                duplicate_test += "self gift"
+
+            # let’s not have strict reciprocity santa <-> giftee
+            giftee = [i for i in family_data if i["id"] == person["should_gift"]][0]
+            if giftee["should_gift"] == person["id"]:
+                duplicate_test += f"reciprocity {person['name']} {giftee['name']}"
+
+            # no one gets their SO or previous giftees as secret santa
+            if person["should_gift"] in person["avoid"]:
+                duplicate_test += f"avoid {person['should_gift']}, {person['avoid']}"
 
         # If no duplicates and stuff like that
         if len(duplicate_test) == 0:
             # one final dot
             print(".")
-            return list(draw_shuf)
+            return family_data
+    else:
+        print(".")
+        print(f"Maximum tries ({LOOP_LIMIT}) reached. Please try again.")
+        exit()
 
 
-def write_draw():
+def write_draw(draw):
     # get the year
     current_year = datetime.now().year
     # here's the name
-    file_name = "draw." + str(current_year) + ".json"
+    file_name = f"draw.{str(current_year)}.json"
+
+    data = {person["id"]: person["should_gift"] for person in draw}
 
     # here's the json
-    draw_json = json.dumps(draw)
+    data_json = json.dumps(data)
 
     # so yeah if the file already exists we ask confirmation for overwriting it
     if os.path.isfile(file_name):
         print("Looks like the file {} already exists.".format(file_name))
         if input("Overwrite? (y/N) ") == "y":
             file_open = open(file_name, "w")
-            file_open.write(str(draw_json))
+            file_open.write(str(data_json))
             file_open.close()
             return "File Saved"
         else:
-            return "File not overwritten, here's the raw output: {}".format(draw_json)
+            return "File not overwritten, here's the raw output: {}".format(data_json)
     else:
         file_open = open(file_name, "w")
-        file_open.write(str(draw_json))
+        file_open.write(str(data_json))
         file_open.close()
         return "File Saved"
 
 
-def send_emails(test=False):
+def send_emails(draw, test=False):
     # so in this one we're sending emails
     print("Sending emails…")
     yag = yagmail.SMTP(settings["gmail_account"])
 
-    print(draw)
-    # let's loop all the couples…
-    for v, couple in enumerate(draw):
-        # …and then loop all the people…
-        for w, person in enumerate(couple):
-            # …so we can get their name and address…
-            santa = family_data[v][w]
-            # …and those of their giftees…
-            # 1 - w will change 0 to 1 and 1 to 0
-            giftee = family_data[int(person / 2)][person % 2]
-            # …and the giftees significant other
-            giftees_so = family_data[int(person / 2)][1 - person % 2]
+    for person in draw:
+        giftee = next(i for i in draw if i["id"] == person["should_gift"])
 
-            # get the email address
-            email_to = santa["email"]
+        # get the email address
+        email_to = person["email"]
 
-            # get email template in the language specified in command line args
-            email_template = build_email_template(santa, giftee, giftees_so)
+        # get email template in the language specified in command line args
+        email_template = build_email_template(person, giftee)
 
-            if email_template:
-                # get the subject (it's the first line)
-                email_subject = email_template.splitlines()[0]
-                # get the body (it's all the lines after the two first lines)
-                email_body = email_template.split("\n", 2)[2]
+        if email_template:
+            # get the subject (it's the first line)
+            email_subject = email_template.splitlines()[0]
+            # get the body (it's all the lines after the two first lines)
+            email_body = email_template.split("\n", 2)[2]
 
-                if test:
-                    # Send the email without "to" !
-                    yag.send(subject=email_subject, contents=email_body)
-                    print(
-                        "The TEST email to {} has been sent to you!".format(
-                            santa["name"]
-                        )
+            if test:
+                # Send the email without "to" !
+                yag.send(subject=email_subject, contents=email_body)
+                print(
+                    "The TEST email to {} has been sent to you!".format(
+                        person["name"]
                     )
-                else:
-                    # Send the email with "to" !
-                    yag.send(to=email_to, subject=email_subject, contents=email_body)
-                    print("The email to {} has been sent!".format(santa["name"]))
+                )
+            else:
+                # Send the email with "to" !
+                yag.send(to=email_to, subject=email_subject, contents=email_body)
+                print("The email to {} has been sent!".format(person["name"]))
 
     return "All mail sent!"
 
 
-def better_print(draw, family_data):
-    for person in list(range(len(family_data))):
-        print(f"{family_data[person]['name']} -> {family_data[draw[person]]['name']}")
+def pretty_print(draw):
+    for person in draw:
+        print(
+            f"{person['name']} -> {[i['name'] for i in family_data if i['id'] == person['should_gift']][0]}"
+        )
 
 
 if __name__ == "__main__":
-
-    # When there's lots of constraints the draw can be very long.
-    # We don't want to hog an old machine, do we?
-    loop_limit = 250
-
     # Args parser
     parser = argparse.ArgumentParser(
         description="A Secret Santa drawer for the whole family, \
@@ -275,26 +269,31 @@ if __name__ == "__main__":
         print("Data file not found. Check the filename.")
         quit()
 
-    avoids = [i["avoid"] for i in family_data]
-
     # --no-dupes 2016 2015 2014
     years_list = args.year
     previous_years = get_previous_years(years_list)
 
+    years = {key: [year[key] for year in previous_years] for key in previous_years[0]}
+
+    for count, value in enumerate(family_data):
+        family_data[count]["so_name"] = next(i["name"] for i in family_data if i["id"] == value["avoid"][0]) if len(value["avoid"]) > 0 else ""
+        family_data[count]["so_email"] = next(i["email"] for i in family_data if i["id"] == value["avoid"][0]) if len(value["avoid"]) > 0 else ""
+        family_data[count]["avoid"].extend(years[str(value["id"])])
+
     # the main thingy
-    draw = do_draw(len(family_data), previous_years, avoids)
+    draw = get_draw(family_data)
 
     # if it's not a --dry-run
     if not args.dry_run:
         # if it's been told to --send-emails
         if args.send_emails:
-            print(send_emails())
+            print(send_emails(draw))
 
         # if it's been told to --test-emails
         if args.test_emails:
-            print(send_emails(test=True))
+            print(send_emails(draw, test=True))
 
-        print(write_draw())
+        print(write_draw(draw))
 
     # if it IS a --dry-run
     else:
@@ -304,7 +303,7 @@ if __name__ == "__main__":
 
         print("-----------------")
         print("Final draw:")
-        print(draw)
-        better_print(draw, family_data)
+        # print(draw)
+        pretty_print(draw)
         print("No email set, no file written.")
         print("If you're satisfied, run the command with --send-emails")

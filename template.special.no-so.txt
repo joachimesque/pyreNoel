@@ -1,0 +1,13 @@
+Tirage au sort des cadeaux de noël 2023 !
+-----------------------------------------
+Coucou $santa_name !
+
+Pour le Noël des Robert, tu dois offrir un cadeau à <strong>$giftee_name</strong>.
+
+Pour plus d’infos, contacte-moi : $reply_email
+<strong>Ne réponds pas à cet email, sinon je saurai à qui tu dois offrir un cadeau !</strong>
+
+Bises !
+
+--
+$reply_name
