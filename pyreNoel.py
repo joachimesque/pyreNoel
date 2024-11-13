@@ -11,6 +11,7 @@ import json
 import argparse
 import os.path
 import pprint #for debugging purposes
+import time
 
 from random import shuffle
 
@@ -206,6 +207,8 @@ def send_emails(draw, test=False):
                 # Send the email with "to" !
                 yag.send(to=email_to, subject=email_subject, contents=email_body)
                 print("The email to {} has been sent!".format(person["name"]))
+
+        time.sleep(1)
 
     return "All mail sent!"
 
