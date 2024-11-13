@@ -100,6 +100,17 @@ def get_draw(family_data):
         for i, j in enumerate(shuffled):
             family_data[i]["should_gift"] = j["id"]
 
+        # 👻
+        for i, j in enumerate(family_data):
+            if "force" in j:
+                gifter_initial = j["should_gift"]
+                forced = j["force"]
+
+                other = [p for p, q in enumerate(family_data) if q["should_gift"] == forced][0]
+
+                family_data[other]["should_gift"] = gifter_initial
+                family_data[i]["should_gift"] = forced
+
         print(".", end="")
 
         duplicate_test = []
