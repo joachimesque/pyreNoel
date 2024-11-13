@@ -141,13 +141,18 @@ def get_draw(family_data):
         exit()
 
 
-def write_draw(draw):
+def write_draw(draw, disabled):
     # get the year
     current_year = datetime.now().year
     # here's the name
     file_name = f"draw.{str(current_year)}.json"
 
     data = {person["id"]: person["should_gift"] for person in draw}
+
+    for d in disabled:
+        data[d] = None
+
+    data = dict(sorted(data.items()))
 
     # here's the json
     data_json = json.dumps(data)
@@ -317,7 +322,7 @@ if __name__ == "__main__":
         if args.test_emails:
             print(send_emails(draw, test=True))
 
-        print(write_draw(draw))
+        print(write_draw(draw, disabled))
 
     # if it IS a --dry-run
     else:
