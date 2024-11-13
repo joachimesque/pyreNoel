@@ -10,6 +10,7 @@ import yagmail
 import json
 import argparse
 import os.path
+import pprint #for debugging purposes
 
 from random import shuffle
 
@@ -273,12 +274,24 @@ if __name__ == "__main__":
     years_list = args.year
     previous_years = get_previous_years(years_list)
 
+    # {'0': [4, 3, 11], '1': [2, 2, 5], '2': [11, 10, 4], '3': [6, 6, 1], '4': [9, 0, 7], '5': [1, 11, 8], '6': [8, 5, 0], '7': [3, 8, 10], '8': [7, 4, 6], '9': [10, 1, None], '10': [5, 9, 3], '11': [0, 7, 2]}
     years = {key: [year[key] for year in previous_years] for key in previous_years[0]}
+    
+    # List all disabled items with a tuple (index in family_data, value of "id" in the item object)
+    disabled = [(c, i["id"]) for c, i in enumerate(family_data) if ("disabled" in i and i["disabled"] is True)]
+
+    # Delete disabled items
+    for d in disabled:
+        del family_data[d[0]]
+
+    # Turn tuple into single
+    disabled = [i[1] for i in disabled]
 
     for count, value in enumerate(family_data):
         family_data[count]["so_name"] = next(i["name"] for i in family_data if i["id"] == value["avoid"][0]) if len(value["avoid"]) > 0 else ""
         family_data[count]["so_email"] = next(i["email"] for i in family_data if i["id"] == value["avoid"][0]) if len(value["avoid"]) > 0 else ""
         family_data[count]["avoid"].extend(years[str(value["id"])])
+        family_data[count]["avoid"].extend(disabled)
 
     # the main thingy
     draw = get_draw(family_data)
