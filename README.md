@@ -1,20 +1,19 @@
 # pyreNoel.py
 
-## A Secret Santa draw generator for groups and families where no one is single.
+## A Secret Santa draw generator for groups and families.
 
-Let's say your group of friends or your family is comprised of couples. You want to organize a Secret Santa for every person and their significant other.
+Let's say your group of friends or your family is comprised of couples (but not only). You want to organize a Secret Santa for every person and their significant other.
 
 Your Secret Santa will have to have safeguards against :
   
   - participants getting assigned their significant other
   - participants getting assigned the same giftee as a previous year
-  - both persons in a couple getting assigned giftees in the same couple
 
 Well you're in luck if this very specific situation happens to you : this script will do all of that, and more (it sends emails to everyone telling them who their giftees will be, and the giftee's SO's email if you want to contact them for ideas).
 
 ## Howto
 
-- Python 2.7
+- Python 3
 - [Yagmail](https://github.com/kootenpv/yagmail) (install through `pip` using the command `pip install yagmail[all]`)
 
 Be sure to configure Yagmail before use, it uses python `keyring` lib.

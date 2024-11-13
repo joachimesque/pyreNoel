@@ -1,69 +1,118 @@
 {
-  "settings": {
-    "gmail_account": "mygmailusername",
-    "reply_name": "My name",
-    "reply_email": "mygmailusername@gmail.com"
-  },
-  "family": [
+    "settings":
+    {
+        "gmail_account": "mygmailusername",
+        "reply_name": "My name",
+        "reply_email": "mygmailusername@gmail.com"
+    },
+    "family":
     [
-      {
-        "name": "Blake Richard",
-        "email": "blakerichard@comtour.com"
-      },
-      {
-        "name": "Deborah Foreman",
-        "email": "deborahforeman@comtour.com"
-      }
-    ],
-    [
-      {
-        "name": "Blackburn Berg",
-        "email": "bergriddlefamily@comtour.com"
-      },
-      {
-        "name": "Hicks Riddle",
-        "email": "bergriddlefamily@comtour.com"
-      }
-    ],
-    [
-      {
-        "name": "Johnnie Kirkland",
-        "email": "johnniekirkland@comtour.com"
-      },
-      {
-        "name": "Gonzales Butler",
-        "email": "gonzalesbutler@comtour.com"
-      }
-    ],
-    [
-      {
-        "name": "Santana Cameron",
-        "email": "santanacameron@comtour.com"
-      },
-      {
-        "name": "Vasquez Spears",
-        "email": "vasquezspears@comtour.com"
-      }
-    ],
-    [
-      {
-        "name": "Flowers Humphrey",
-        "email": "flowershumphrey@comtour.com"
-      },
-      {
-        "name": "Moody Perez",
-        "email": "moodyperez@comtour.com"
-      }
-    ],
-    [
-      {
-        "name": "Hutchinson Trujillo",
-        "email": "hutchinsontrujillo@comtour.com"
-      },
-      {
-        "name": "York Maxwell",
-        "email": "yorkmaxwell@comtour.com"
-      }
+        [
+            {
+                "id": 1,
+                "name": "Blake Richard",
+                "email": "blakerichard@comtour.com",
+                "avoid":
+                [
+                    2
+                ]
+            },
+            {
+                "id": 2,
+                "name": "Deborah Foreman",
+                "email": "deborahforeman@comtour.com",
+                "avoid":
+                [
+                    1
+                ]
+            },
+            {
+                "id": 3,
+                "name": "Blackburn Berg",
+                "email": "bergriddlefamily@comtour.com",
+                "avoid":
+                [
+                    4
+                ]
+            },
+            {
+                "id": 4,
+                "name": "Hicks Riddle",
+                "email": "bergriddlefamily@comtour.com",
+                "avoid":
+                [
+                    3
+                ]
+            },
+            {
+                "id": 5,
+                "name": "Johnnie Kirkland",
+                "email": "johnniekirkland@comtour.com",
+                "avoid":
+                [
+                    6
+                ]
+            },
+            {
+                "id": 6,
+                "name": "Gonzales Butler",
+                "email": "gonzalesbutler@comtour.com",
+                "avoid":
+                [
+                    5
+                ]
+            },
+            {
+                "id": 7,
+                "name": "Santana Cameron",
+                "email": "santanacameron@comtour.com",
+                "avoid":
+                [
+                    8
+                ]
+            },
+            {
+                "id": 8,
+                "name": "Vasquez Spears",
+                "email": "vasquezspears@comtour.com",
+                "avoid":
+                [
+                    7
+                ]
+            },
+            {
+                "disabled": true,
+                "id": 9,
+                "name": "",
+                "email": "",
+                "avoid":
+                []
+            },
+            {
+                "id": 10,
+                "name": "Moody Perez",
+                "email": "moodyperez@comtour.com",
+                "avoid":
+                []
+            },
+            {
+                "id": 11,
+                "name": "Hutchinson Trujillo",
+                "email": "hutchinsontrujillo@comtour.com",
+                "avoid":
+                [
+                    12
+                ]
+            },
+            {
+                "id": 12,
+                "name": "York Maxwell",
+                "email": "yorkmaxwell@comtour.com",
+                "avoid":
+                [
+                    11
+                ]
+            }
+        ]
     ]
-  ]
 }
